@@ -1,0 +1,9 @@
+*.o
+*.d
+*.a
+*.lst
+*.map
+*.elf
+*.hex
+*.bin
+bin/sistemas-embebidos*
