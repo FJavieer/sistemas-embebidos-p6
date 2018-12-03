@@ -1,9 +1,9 @@
 [submodule "libalx"]
 	path = libalx
 	url = https://github.com/alejandro-colomar/libalx/
-[submodule "stm32-drivers"]
-	path = stm32-drivers
-	url = https://github.com/alejandro-colomar/stm32-drivers/
+[submodule "stm32l4-drivers"]
+	path = stm32l4-drivers
+	url = https://github.com/alejandro-colomar/stm32l4-drivers/
 [submodule "stm32l4-modules"]
 	path = stm32l4-modules
 	url = https://github.com/alejandro-colomar/stm32l4-modules/

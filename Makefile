@@ -77,7 +77,7 @@ export	PROGRAMVERSION
 # ==============================================================================
 
 # all the files will be generated with this name (main.elf, main.bin, main.hex, etc)
-PROJECT_NAME = l4template
+PROJECT_NAME = proyect-6
 TARGET = $(PROJECT_NAME).elf
 
 # list of source files
@@ -90,7 +90,7 @@ SRCS = main.c system_stm32l4xx.c
 
 MAIN_DIR	= $(CURDIR)
 LIBALX_DIR	= $(MAIN_DIR)/libalx/
-DRIVERS_DIR	= $(MAIN_DIR)/stm32-drivers/
+DRIVERS_DIR	= $(MAIN_DIR)/stm32l4-drivers/
 MODULES_DIR	= $(MAIN_DIR)/stm32l4-modules/
 SRC_DIR		= $(MAIN_DIR)/src/
 INC_DIR		= $(MAIN_DIR)/inc/
@@ -107,6 +107,7 @@ export	MODULES_DIR
 ################################################################################
 # Make variables (CC, etc...)
 CC	= arm-none-eabi-gcc
+AS	= arm-none-eabi-as
 AR	= arm-none-eabi-ar
 GDB	= arm-none-eabi-gdb
 OBJCOPY	= arm-none-eabi-objcopy
@@ -114,6 +115,7 @@ OBJDUMP	= arm-none-eabi-objdump
 SIZE	= arm-none-eabi-size
 
 export	CC
+export	AS
 export	AR
 export	GDB
 export	OBJCOPY
@@ -167,6 +169,8 @@ CFLAGS	       += $(C_INCLUDES)
 # defining used MCU (instead of in file stm32f00x.h): -DSTM32F051x8//
 CFLAGS += -DUSE_HAL_DRIVER # to include file stm32l4xx_hal.h
 
+export	CFLAGS
+
 
 ################################################################################
 # LDFLAGS
@@ -187,15 +191,31 @@ OBJS = $(addprefix $(TMP_DIR)/,$(SRCS:.c=.o))
 DEPS = $(addprefix $(DEP_DIR)/,$(SRCS:.c=.d))
 
 
-.PHONY: all stm32-drivers flash erase reset clean entireclean display
+.PHONY: all stm32l4-drivers libalx stm32l4-modules flash erase reset clean entireclean display
 
-all: dirs stm32-drivers $(BIN_DIR)/$(TARGET) $(BIN_DIR)/$(PROJECT_NAME).hex $(BIN_DIR)/$(PROJECT_NAME).lst size
+all: dirs stm32l4-drivers libalx stm32l4-modules \
+		$(BIN_DIR)/$(TARGET) $(BIN_DIR)/$(PROJECT_NAME).hex \
+		$(BIN_DIR)/$(PROJECT_NAME).lst size
 
-stm32-drivers:
-	make -C $(DRIVERS_DIR)
+stm32l4-drivers:
+	@echo	'	MAKE	drivers'
+	$(Q)make -C $(DRIVERS_DIR)
+
+libalx:
+	@echo	'	MAKE	libalx'
+	$(Q)make -C $(LIBALX_DIR)
+
+stm32l4-modules:
+	@echo	'	MAKE	modules'
+	$(Q)make -C $(MODULES_DIR)
 
 dirs:
-	mkdir -p $(DEP_DIR) $(TMP_DIR) $(BIN_DIR)
+	@echo	'	MKDIR	$(DEP_DIR)'
+	$(Q)mkdir -p $(DEP_DIR)
+	@echo	'	MKDIR	$(TMP_DIR)'
+	$(Q)mkdir -p $(TMP_DIR)
+	@echo	'	MKDIR	$(BIN_DIR)'
+	$(Q)mkdir -p $(BIN_DIR)
 
 display:
 	@echo 'SRCS = $(SRCS)'
@@ -205,29 +225,39 @@ display:
 ## Compile:
 # independent rule for every source file
 $(TMP_DIR)/main.o : $(SRC_DIR)/main.c
-	$(CC) $(CFLAGS) -MMD -MF $(DEP_DIR)/$(*F).d -c $(SRC_DIR)/main.c -o $@
+	@echo	'	CC	$@'
+	$(Q)$(CC) $(CFLAGS) -MMD -MF $(DEP_DIR)/$(*F).d -c $(SRC_DIR)/main.c -o $@
 
 $(TMP_DIR)/system_stm32l4xx.o : $(SRC_DIR)/system_stm32l4xx.c
-	$(CC) $(CFLAGS) -MMD -MF $(DEP_DIR)/$(*F).d -c $(SRC_DIR)/system_stm32l4xx.c -o $@
+	@echo	'	CC	$@'
+	$(Q)$(CC) $(CFLAGS) -MMD -MF $(DEP_DIR)/$(*F).d -c $(SRC_DIR)/system_stm32l4xx.c -o $@
 
 
 ## Link:
 $(BIN_DIR)/$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(STARTUP) -L$(DRIVERS_DIR) -lstm32l4 -TSTM32L476RG.ld
+	@echo	'	CC	$@'
+	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(STARTUP) \
+			-L $(MODULES_DIR)/lib/ -l stm32l4-modules \
+			-L $(DRIVERS_DIR)/lib/ -l stm32l4 \
+			-L $(LIBALX_DIR)/lib/ -l alx-base \
+			-TSTM32L476RG.ld
 
 ## Post-build steps:
 $(BIN_DIR)/$(PROJECT_NAME).hex: $(BIN_DIR)/$(TARGET)
-	$(OBJCOPY) -O ihex $(BIN_DIR)/$(TARGET) $@
+	@echo	'	OBJCOPY	$@'
+	$(Q)$(OBJCOPY) -O ihex $(BIN_DIR)/$(TARGET) $@
 
 $(BIN_DIR)/$(PROJECT_NAME).bin: $(BINDIR)/$(TARGET)
-	$(OBJCOPY) -O binary $(BINDIR)/$(TARGET) $@
+	@echo	'	OBJCOPY	$@'
+	$(Q)$(OBJCOPY) -O binary $(BINDIR)/$(TARGET) $@
 
 $(BIN_DIR)/$(PROJECT_NAME).lst: $(BIN_DIR)/$(TARGET)
-	$(OBJDUMP) -St $(BIN_DIR)/$(TARGET) > $@
+	@echo	'	OBJDUMP	$@'
+	$(Q)$(OBJDUMP) -St $(BIN_DIR)/$(TARGET) > $@
 
 size: $(BIN_DIR)/$(TARGET)
 	@echo 'size $<'
-	@$(SIZE) -B $(BIN_DIR)/$(TARGET)
+	$(Q)$(SIZE) -B $(BIN_DIR)/$(TARGET)
 	@echo
 
 
@@ -248,7 +278,12 @@ clean:
 	make clean -C $(DRIVERS_DIR)
 
 mrproper: clean
-	make -C $(DRIVERS_DIR) clean
+	@echo	'	CLEAN	modules'
+	$(Q)make -C $(MODULES_DIR) clean
+	@echo	'	CLEAN	libalx'
+	$(Q)make -C $(LIBALX_DIR) clean
+	@echo	'	CLEAN	drivers'
+	$(Q)make -C $(DRIVERS_DIR) clean
 
 
 
