@@ -262,15 +262,15 @@ size: $(BIN_DIR)/$(TARGET)
 
 
 flash:
-	openocd -f board/stm32f0discovery.cfg -c "program $(BIN_DIR)/$(PROJECT_NAME).hex verify reset exit"
+	openocd -f board/stm32l4nucleo.cfg -c "program $(BIN_DIR)/$(PROJECT_NAME).hex verify reset exit"
 #second approach:	openocd -f board/stm32f0discovery.cfg -c "init" -c "reset halt" -c "flash write_image erase $(BINDIR)/$(PROJECT_NAME).hex" -c "verify_image $(BINDIR)/$(PROJECT_NAME).hex" -c "reset run" -c "exit"
 #third approach:	openocd -f interface/stlink-v2.cfg -f target/stm32f0x_stlink.cfg -c "init" -c "reset halt" -c "flash write_image erase $(BINDIR)/$(PROJECT_NAME).hex" -c "verify_image $(BINDIR)/$(PROJECT_NAME).hex" -c "reset run" -c "exit"
 
 erase:
-	openocd -f board/stm32f0discovery.cfg -c "init" -c "reset halt" -c "stm32l4x mass_erase 0" -c "reset" -c "shutdown"
+	openocd -f board/stm32l4nucleo.cfg -c "init" -c "reset halt" -c "stm32l4x mass_erase 0" -c "reset" -c "shutdown"
 
 reset:
-	openocd -f board/stm32f0discovery.cfg -c "init" -c "reset" -c "shutdown"
+	openocd -f board/stm32l4nucleo.cfg -c "init" -c "reset" -c "shutdown"
 
 clean:
 	rm -f $(TMP_DIR)/*.o $(DEP_DIR)/*.d
