@@ -222,6 +222,7 @@ dirs:
 	$(Q)mkdir -p $(TMP_DIR)
 	@echo	'	MKDIR	$(BIN_DIR)'
 	$(Q)mkdir -p $(BIN_DIR)
+	@echo	''
 
 display:
 	@echo 'SRCS = $(SRCS)'

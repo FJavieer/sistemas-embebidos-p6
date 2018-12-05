@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include "stm32l4xx_hal.h"
 #include "servo.h"
+#include "servo_test.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -38,13 +39,15 @@ int	main	(void)
 	/* Configure the System clock to 180 MHz */
 	SystemClock_Config();
 
-	servo_init();
+	servo_test();
+
+	servo_sALL_init();
 
 	/* Infinite loop */
 	while (true) {
-		servo_position_set(-850);
+		servo_sX_position_set(-850, SERVO_SALL);
 		HAL_Delay(5000);
-		servo_position_set(850);
+		servo_sX_position_set(850, SERVO_SALL);
 		HAL_Delay(5000);
 	}
 }
