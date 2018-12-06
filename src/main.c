@@ -14,6 +14,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "stm32l4xx_hal.h"
+#include "delay.h"
+#include "led.h"
 #include "servo.h"
 #include "servo_test.h"
 
@@ -39,17 +41,50 @@ int	main	(void)
 	/* Configure the System clock to 180 MHz */
 	SystemClock_Config();
 
-	servo_test();
+//	servo_test();
 
-	servo_sALL_init();
+	/* init */
+	led_init();
+//	delay_us_init();
+/*	servo_s1_init();
+	servo_s2_init();
+	servo_s3_init();
+	servo_s4_init();*/
+
+	led_set();
+//	delay_us(5000000u);
+HAL_Delay(1000);
+	led_reset();
+HAL_Delay(1000);
+	led_set();
+HAL_Delay(1000);
+	led_reset();
+HAL_Delay(1000);
+	led_set();
+HAL_Delay(1000);
+	led_reset();
+HAL_Delay(1000);
+	led_set();
+
+	delay_us_init();
 
 	/* Infinite loop */
 	while (true) {
-		servo_sX_position_set(-850, SERVO_SALL);
-		HAL_Delay(5000);
-		servo_sX_position_set(850, SERVO_SALL);
-		HAL_Delay(5000);
+		led_reset();
+/*		servo_sX_position_set(-850, SERVO_S1);
+		servo_sX_position_set(-850, SERVO_S2);
+		servo_sX_position_set(-850, SERVO_S3);
+		servo_sX_position_set(-850, SERVO_S4);*/
+		delay_us(500000u);
+
+		led_set();
+/*		servo_sX_position_set(850, SERVO_S1);
+		servo_sX_position_set(650, SERVO_S2);
+		servo_sX_position_set(450, SERVO_S3);
+		servo_sX_position_set(250, SERVO_S4);*/
+		delay_us(500000u);
 	}
+	return	0;
 }
 
 

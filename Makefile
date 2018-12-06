@@ -87,7 +87,7 @@ PROJECT_NAME = proyect-6
 TARGET = $(PROJECT_NAME).elf
 
 # list of source files
-SRCS = main.c system_stm32l4xx.c
+SRCS = main.c system_stm32l4xx.c stm32l4xx_it.c
 
 # ==============================================================================
 
@@ -160,6 +160,8 @@ C_INCLUDES     += -I $(DRIVERS_DIR)/CMSIS/ST/STM32L4xx/Include/
 C_INCLUDES     += -I $(DRIVERS_DIR)/STM32L4xx_HAL_Driver/Inc/
 C_INCLUDES     += -I $(DRIVERS_DIR)/STM32L4xx_HAL_Driver/Inc/Legacy/
 C_INCLUDES     += -I $(LIBALX_DIR)/inc/
+C_INCLUDES     += -I $(MODULES_DIR)/delay/inc/
+C_INCLUDES     += -I $(MODULES_DIR)/led/inc/
 C_INCLUDES     += -I $(MODULES_DIR)/pwm/inc/
 C_INCLUDES     += -I $(MODULES_DIR)/servo/inc/
 C_INCLUDES     += -I $(INC_DIR)/
@@ -238,6 +240,10 @@ $(TMP_DIR)/main.o : $(SRC_DIR)/main.c
 $(TMP_DIR)/system_stm32l4xx.o : $(SRC_DIR)/system_stm32l4xx.c
 	@echo	'	CC	$@'
 	$(Q)$(CC) $(CFLAGS) -MMD -MF $(DEP_DIR)/$(*F).d -c $(SRC_DIR)/system_stm32l4xx.c -o $@
+
+$(TMP_DIR)/stm32l4xx_it.o : $(SRC_DIR)/stm32l4xx_it.c
+	@echo	'	CC	$@'
+	$(Q)$(CC) $(CFLAGS) -MMD -MF $(DEP_DIR)/$(*F).d -c $(SRC_DIR)/stm32l4xx_it.c -o $@
 
 
 ## Link:
