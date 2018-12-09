@@ -17,8 +17,8 @@ export	SUBLEVEL
 # 2016.08.11
 #
 # Modified for development board STM32L476xx
-# Alejandro Colomar  <1903716@gmail.com>
-# Javi
+# Colomar Andrés, Alejandro  <1903716@gmail.com>
+# García Pedroche, Francisco Javier  <@.>
 # 2018
 ################################################################################
 
