@@ -145,6 +145,7 @@ CFLAGS_W	= -Wall
 CFLAGS_W       += -Wextra
 CFLAGS_W       += -Wstrict-prototypes
 CFLAGS_W       += -Werror
+CFLAGS_W       += -Wno-error-main
 CFLAGS_W       += -Wno-format-truncation
 CFLAGS_W       += -Wno-format-zero-length
 

@@ -51,15 +51,15 @@ static	int	test_units	(void);
 /******************************************************************************
  ******* main *****************************************************************
  ******************************************************************************/
-int	main	(void)
+void	main	(void)
 {
 	/* init */
 	if (main_init()) {
-		return	ERROR_NOK;
+		return;
 	}
 
 	if (test_units()) {
-		return	ERROR_NOK;
+		return;
 	}
 
 #if 0
@@ -68,7 +68,7 @@ int	main	(void)
 	}
 #endif
 
-	return	0;
+	return;
 }
 
 
