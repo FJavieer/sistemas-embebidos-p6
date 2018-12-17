@@ -45,7 +45,7 @@
  ******************************************************************************/
 static	int	main_init	(void);
 static	int	test_units	(void);
-//	void	fputc_SetXY		(uint16_t x, uint16_t y);
+//	void	fputc_SetXY	(uint16_t x, uint16_t y);
 
 
 /******************************************************************************
