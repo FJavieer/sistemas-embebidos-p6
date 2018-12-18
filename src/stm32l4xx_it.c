@@ -41,6 +41,9 @@
 #include <stdbool.h>
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_it.h"
+#include "stm32l4xx_hal_can.h"
+
+#include "can.h"
 
 /** @addtogroup STM32L4xx_HAL_Examples
   * @{
@@ -168,13 +171,14 @@ void	SysTick_Handler		(void)
 /******************************************************************************/
 
 /**
-  * @brief  This function handles PPP interrupt request.
-  * @param  None
-  * @retval None
-  */
-/*void PPP_IRQHandler(void)
+* @brief  This function handles CAN1 RX0 interrupt request.
+* @param  None
+* @retval None
+*/
+void CAN1_RX0_IRQHandler(void)
 {
-}*/
+	HAL_CAN_IRQHandler(&can_handle);
+}
 
 
 /**
