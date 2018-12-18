@@ -57,10 +57,7 @@ int	main	(void)
 	/* init */
 	led_init();
 	delay_us_init();
-	servo_s1_init();
-	servo_s2_init();
-	servo_s3_init();
-	servo_s4_init();
+	servo_init();
 
 	led_test();
 	servo_test();
