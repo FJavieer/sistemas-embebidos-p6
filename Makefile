@@ -145,6 +145,7 @@ CFLAGS_W	= -Wall
 CFLAGS_W       += -Wextra
 CFLAGS_W       += -Wstrict-prototypes
 CFLAGS_W       += -Werror
+CFLAGS_W       += -Wno-error-main
 CFLAGS_W       += -Wno-format-truncation
 CFLAGS_W       += -Wno-format-zero-length
 
@@ -163,6 +164,8 @@ C_INCLUDES     += -I $(LIBALX_DIR)/inc/
 C_INCLUDES     += -I $(MODULES_DIR)/can/inc/
 C_INCLUDES     += -I $(MODULES_DIR)/clk/inc/
 C_INCLUDES     += -I $(MODULES_DIR)/delay/inc/
+C_INCLUDES     += -I $(MODULES_DIR)/display/inc/
+C_INCLUDES     += -I $(MODULES_DIR)/errors/inc/
 C_INCLUDES     += -I $(MODULES_DIR)/led/inc/
 C_INCLUDES     += -I $(MODULES_DIR)/pwm/inc/
 C_INCLUDES     += -I $(MODULES_DIR)/servo/inc/

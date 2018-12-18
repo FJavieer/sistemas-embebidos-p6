@@ -8,8 +8,8 @@
  ******* headers **************************************************************
  ******************************************************************************/
 /* Standard C ----------------------------------------------------------------*/
-	#include <stdbool.h>
-	#include <stdio.h>
+//	#include <stdbool.h>
+//	#include <stdio.h>
 
 /* Drivers -------------------------------------------------------------------*/
 	#include "stm32l4xx_hal.h"
@@ -18,10 +18,13 @@
 /* STM32L4 modules -----------------------------------------------------------*/
 	#include "clk.h"
 	#include "delay.h"
+	#include "display.h"
+	#include "errors.h"
 	#include "led.h"
 	#include "servo.h"
 
 	#include "led_test.h"
+	#include "display_test.h"
 	#include "servo_test.h"
 
 
@@ -40,27 +43,23 @@
 /******************************************************************************
  ******* static functions (prototypes) ****************************************
  ******************************************************************************/
-//	void	fputc_SetXY		(uint16_t x, uint16_t y);
+static	int	main_init	(void);
+static	int	test_units	(void);
+//	void	fputc_SetXY	(uint16_t x, uint16_t y);
 
 
 /******************************************************************************
  ******* main *****************************************************************
  ******************************************************************************/
-int	main	(void)
+void	main	(void)
 {
-	/* STM32L4xx HAL library initialization */
-	HAL_Init();
+	if (main_init()) {
+		return;
+	}
 
-	/* Configure the System clock to 180 MHz */
-	sysclk_config();
-
-	/* init */
-	led_init();
-	delay_us_init();
-	servo_init();
-
-	led_test();
-	servo_test();
+	if (test_units()) {
+		return;
+	}
 
 #if 0
 	/* Infinite loop */
@@ -68,13 +67,45 @@ int	main	(void)
 	}
 #endif
 
-	return	0;
+	return;
 }
 
 
 /******************************************************************************
  ******* static functions (definitions) ***************************************
  ******************************************************************************/
+static	int	main_init	(void)
+{
+	HAL_Init();
+
+	sysclk_config();
+
+	led_init();
+	if (delay_us_init()) {
+		return	ERROR_NOK;
+	}
+	if (display_init()) {
+		return	ERROR_NOK;
+	}
+	servo_init();
+
+	return	ERROR_OK;
+}
+
+static	int	test_units	(void)
+{
+	if (led_test()) {
+		return	ERROR_NOK;
+	}
+	if (display_test()) {
+		return	ERROR_NOK;
+	}
+	if (servo_test()) {
+		return	ERROR_NOK;
+	}
+
+	return	ERROR_OK;
+}
 
 
 /******************************************************************************
