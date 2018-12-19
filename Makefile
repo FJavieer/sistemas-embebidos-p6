@@ -159,7 +159,6 @@ C_INCLUDES	= -I $(DRIVERS_DIR)/
 C_INCLUDES     += -I $(DRIVERS_DIR)/CMSIS/Include/
 C_INCLUDES     += -I $(DRIVERS_DIR)/CMSIS/ST/STM32L4xx/Include/
 C_INCLUDES     += -I $(DRIVERS_DIR)/STM32L4xx_HAL_Driver/Inc/
-C_INCLUDES     += -I $(DRIVERS_DIR)/STM32L4xx_HAL_Driver/Inc/Legacy/
 C_INCLUDES     += -I $(LIBALX_DIR)/inc/
 C_INCLUDES     += -I $(MODULES_DIR)/can/inc/
 C_INCLUDES     += -I $(MODULES_DIR)/clk/inc/

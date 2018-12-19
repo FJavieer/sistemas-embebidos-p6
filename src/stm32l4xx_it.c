@@ -41,25 +41,6 @@
 #include <stdbool.h>
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_it.h"
-#include "stm32l4xx_hal_can.h"
-
-#include "can.h"
-
-/** @addtogroup STM32L4xx_HAL_Examples
-  * @{
-  */
-
-/** @addtogroup Templates
-  * @{
-  */
-
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Exceptions Handlers                         */
@@ -162,31 +143,5 @@ void	SysTick_Handler		(void)
 {
 	HAL_IncTick();
 }
-
-/******************************************************************************/
-/*                 STM32L4xx Peripherals Interrupt Handlers                   */
-/*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
-/*  available peripheral interrupt handler's name please refer to the startup */
-/*  file (startup_stm32l4xxxx.s).                                             */
-/******************************************************************************/
-
-/**
-* @brief  This function handles CAN1 RX0 interrupt request.
-* @param  None
-* @retval None
-*/
-void CAN1_RX0_IRQHandler(void)
-{
-	HAL_CAN_IRQHandler(&can_handle);
-}
-
-
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
