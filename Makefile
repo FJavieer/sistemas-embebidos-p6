@@ -160,14 +160,9 @@ C_INCLUDES     += -I $(DRIVERS_DIR)/CMSIS/Include/
 C_INCLUDES     += -I $(DRIVERS_DIR)/CMSIS/ST/STM32L4xx/Include/
 C_INCLUDES     += -I $(DRIVERS_DIR)/STM32L4xx_HAL_Driver/Inc/
 C_INCLUDES     += -I $(LIBALX_DIR)/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/can/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/clk/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/delay/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/display/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/errors/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/led/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/pwm/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/servo/inc/
+C_INCLUDES     += -I $(MODULES_DIR)/inc/
+C_INCLUDES     += -I $(MODULES_DIR)/inc/dev/
+C_INCLUDES     += -I $(MODULES_DIR)/inc/test/
 C_INCLUDES     += -I $(INC_DIR)/
 
 CFLAGS		= $(CFLAGS_STD)
@@ -254,7 +249,10 @@ $(TMP_DIR)/stm32l4xx_it.o : $(SRC_DIR)/stm32l4xx_it.c
 $(BIN_DIR)/$(TARGET): $(OBJS)
 	@echo	'	CC	$@'
 	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(STARTUP) \
-			-L $(MODULES_DIR)/lib/ -l stm32l4-modules \
+			-L $(MODULES_DIR)/lib/ \
+				-l stm32l4-modules-test \
+				-l stm32l4-modules-dev \
+				-l stm32l4-modules-base \
 			-L $(DRIVERS_DIR)/lib/ -l stm32l4 \
 			-L $(LIBALX_DIR)/lib/ -l alx-base \
 			-TSTM32L476RG.ld

@@ -22,16 +22,21 @@
 	#include "display.h"
 	#include "errors.h"
 	#include "led.h"
+	#include "nunchuk.h"
 	#include "servo.h"
+	#include "tim.h"
 
-	#include "led_test.h"
 	#include "display_test.h"
+	#include "led_test.h"
+	#include "nunchuk_test.h"
 	#include "servo_test.h"
+	#include "tim_test.h"
 
 
 /******************************************************************************
  ******* macros ***************************************************************
  ******************************************************************************/
+	# define	REFRESH_FREQ	(50u)
 
 
 /******************************************************************************
@@ -46,7 +51,7 @@
  ******************************************************************************/
 static	int	main_init	(void);
 static	int	test_units	(void);
-//	void	fputc_SetXY	(uint16_t x, uint16_t y);
+static	int	proc_init	(void);
 
 
 /******************************************************************************
@@ -56,19 +61,36 @@ noreturn int	main	(void)
 {
 	if (main_init()) {
 		while (true) {
-			/* Infinite loop */
+			__NOP();
 		}
 	}
 
 	if (test_units()) {
 		while (true) {
-			/* Infinite loop */
+			__NOP();
 		}
 	}
 
+	if (proc_init()) {
+		while (true) {
+			__NOP();
+		}
+	}
 
-	/* Infinite loop */
 	while (true) {
+		__WFE();
+		if (tim_tim3_interrupt) {
+			if (tim_callback_exe()) {
+				while (true) {
+					__NOP();
+				}
+			}
+			tim_tim3_interrupt	= false;
+		}
+	}
+
+	while (true) {
+		__NOP();
 	}
 }
 
@@ -83,13 +105,21 @@ static	int	main_init	(void)
 	sysclk_config();
 
 	led_init();
+	if (tim_tim3_init(REFRESH_FREQ)) {
+		return	ERROR_NOK;
+	}
 	if (delay_us_init()) {
 		return	ERROR_NOK;
 	}
 	if (display_init()) {
 		return	ERROR_NOK;
 	}
-	servo_init();
+	if (servo_init()) {
+		return	ERROR_NOK;
+	}
+	if (nunchuk_init()) {
+		return	ERROR_NOK;
+	}
 
 	return	ERROR_OK;
 }
@@ -99,10 +129,37 @@ static	int	test_units	(void)
 	if (led_test()) {
 		return	ERROR_NOK;
 	}
+	if (tim_test(REFRESH_FREQ)) {
+		return	ERROR_NOK;
+	}
 	if (display_test()) {
 		return	ERROR_NOK;
 	}
 	if (servo_test()) {
+		return	ERROR_NOK;
+	}
+	if (nunchuk_test()) {
+		return	ERROR_NOK;
+	}
+
+	return	ERROR_OK;
+}
+
+static	int	proc_init	(void)
+{
+	if (led_test()) {
+		return	ERROR_NOK;
+	}
+	if (tim_test(REFRESH_FREQ)) {
+		return	ERROR_NOK;
+	}
+	if (display_test()) {
+		return	ERROR_NOK;
+	}
+	if (servo_test()) {
+		return	ERROR_NOK;
+	}
+	if (nunchuk_test()) {
 		return	ERROR_NOK;
 	}
 
