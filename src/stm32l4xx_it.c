@@ -40,7 +40,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include "stm32l4xx_hal.h"
-#include "stm32l4xx_it.h"
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Exceptions Handlers                         */
