@@ -77,7 +77,7 @@ int	proc_actuators		(void)
 		__WFE();
 		if (tim_tim3_interrupt) {
 			if (tim_callback_exe()) {
-				error_handle();
+				prj_error_handle();
 				return	ERROR_NOK;
 			}
 			tim_tim3_interrupt	= false;
