@@ -16,9 +16,13 @@
 	#include "stm32l4xx_hal.h"
 
 /* libalx --------------------------------------------------------------------*/
+	#include "alx_math.h"
+
 /* STM32L4 modules -----------------------------------------------------------*/
 	#include "can.h"
+	#include "delay.h"
 	#include "errors.h"
+	#include "led.h"
 	#include "servo.h"
 	#include "tim.h"
 
@@ -50,7 +54,7 @@ static	float	yaw;
  ******* static functions (prototypes) ****************************************
  ******************************************************************************/
 static	int	modules_init		(void);
-static	int	proc_init		(void);
+/*static	int	proc_init		(void);*/
 static	int	proc_ref_read		(void *data);
 static	int	proc_actuators_set	(void *data);
 
@@ -64,14 +68,21 @@ int	proc_actuators_init	(void)
 		return	ERROR_NOK;
 	}
 
-	if (proc_init()) {
+/*	if (proc_init()) {
 		return	ERROR_NOK;
-	}
+	}*/
+
+
+	servo_position_set(SERVO_S1, 0);
+	servo_position_set(SERVO_S2, -45);
+	servo_position_set(SERVO_S3, 90);
+	servo_position_set(SERVO_S4, -90);
+	delay_us(1000000u);
 
 	return	ERROR_OK;
 }
 
-int	proc_actuators		(void)
+int	proc_actuators_1	(void)
 {
 	while (true) {
 		__WFE();
@@ -87,13 +98,35 @@ int	proc_actuators		(void)
 	return	ERROR_OK;
 }
 
+int	proc_actuators_2	(void)
+{
+	delay_us(200000u);
+
+	while (true) {
+		delay_us(100000u);
+
+		if (!proc_ref_read(NULL)) {
+			if (proc_actuators_set(NULL)) {
+				return	ERROR_NOK;
+			}
+		}
+	}
+
+	return	ERROR_OK;
+}
+
 
 /******************************************************************************
  ******* static functions (definitions) ***************************************
  ******************************************************************************/
 static	int	modules_init		(void)
 {
+#if 0
 	if (tim_tim3_init(REFRESH_FREQ)) {
+		return	ERROR_NOK;
+	}
+#endif
+	if (delay_us_init()) {
 		return	ERROR_NOK;
 	}
 	if (can_init()) {
@@ -106,6 +139,7 @@ static	int	modules_init		(void)
 	return	ERROR_OK;
 }
 
+#if 0
 static	int	proc_init		(void)
 {
 	if (tim_callback_push(&proc_ref_read, NULL)) {
@@ -117,6 +151,7 @@ static	int	proc_init		(void)
 
 	return	ERROR_OK;
 }
+#endif
 
 static	int	proc_ref_read		(void *data)
 {
@@ -137,16 +172,38 @@ static	int	proc_ref_read		(void *data)
 
 static	int	proc_actuators_set	(void *data)
 {
+	float	tmp;
+
 	(void)data;
 
-	if (servo_position_set(SERVO_S1, pitch)) {
+	tmp	= alx_scale_linear_f(pitch, -40, 40, -90, 90);
+	if (servo_position_set(SERVO_S1, tmp)) {
 		return	ERROR_NOK;
 	}
-	if (servo_position_set(SERVO_S2, roll)) {
+
+	tmp	= alx_scale_linear_f(roll, -35, 35, -90, -20);
+	if (servo_position_set(SERVO_S2, tmp)) {
 		return	ERROR_NOK;
 	}
-	if (servo_position_set(SERVO_S3, yaw)) {
-		return	ERROR_NOK;
+
+	if (yaw > 0) {
+		if (servo_position_set(SERVO_S3, 90)) {
+			return	ERROR_NOK;
+		}
+
+		tmp	= alx_scale_linear_f(yaw, 0, 10, -90, 90);
+		if (servo_position_set(SERVO_S4, tmp)) {
+			return	ERROR_NOK;
+		}
+	} else {
+		tmp	= alx_scale_linear_f(yaw, -10, 0, -90, 90);
+		if (servo_position_set(SERVO_S3, tmp)) {
+			return	ERROR_NOK;
+		}
+
+		if (servo_position_set(SERVO_S4, -90)) {
+			return	ERROR_NOK;
+		}
 	}
 
 	return	ERROR_OK;
