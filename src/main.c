@@ -8,15 +8,15 @@
  ******* headers **************************************************************
  ******************************************************************************/
 /* Standard C ----------------------------------------------------------------*/
-	#include <stdnoreturn.h>
 	#include <stdbool.h>
-//	#include <stdio.h>
+	#include <stdnoreturn.h>
 
 /* Drivers -------------------------------------------------------------------*/
 	#include "stm32l4xx_hal.h"
 
 /* libalx --------------------------------------------------------------------*/
 /* STM32L4 modules -----------------------------------------------------------*/
+	#include "can.h"
 	#include "clk.h"
 	#include "delay.h"
 	#include "display.h"
@@ -26,6 +26,7 @@
 	#include "servo.h"
 	#include "tim.h"
 
+	#include "can_test.h"
 	#include "display_test.h"
 	#include "led_test.h"
 	#include "nunchuk_test.h"
@@ -35,9 +36,6 @@
 /* project -------------------------------------------------------------------*/
 	#include "ctrl.h"
 	#include "actuators.h"
-
-	#include "ctrl_tst.h"
-	#include "actuators_tst.h"
 
 
 /******************************************************************************
@@ -66,24 +64,21 @@ noreturn int	main	(void)
 {
 	HAL_Init();
 	sysclk_config();
+	prj_error	= 0;
 
 	(void)&test_init;
-/*	if (test_init()) {*/
+	if (test_init()) {
 /*	if (proc_actuators_init()) {*/
 /*	if (proc_ctrl_init()) {*/
-/*	if (proc_ctrl_tst_init()) {*/
-	if (proc_actuators_init()) {
 		while (true) {
 			__NOP();
 		}
 	}
 
 	(void)&test;
-/*	if (test()) {*/
+	if (test()) {
 /*	if (proc_actuators()) {*/
 /*	if (proc_ctrl()) {*/
-/*	if (proc_ctrl_tst()) {*/
-	if (proc_actuators()) {
 		while (true) {
 			__NOP();
 		}
@@ -101,21 +96,24 @@ noreturn int	main	(void)
 static	int	test_init	(void)
 {
 	led_init();
-	if (tim_tim3_init(REFRESH_FREQ)) {
-		return	ERROR_NOK;
-	}
 	if (delay_us_init()) {
 		return	ERROR_NOK;
 	}
-	if (display_init()) {
+	if (can_init()) {
 		return	ERROR_NOK;
 	}
-	if (servo_init()) {
+/*	if (servo_init()) {
 		return	ERROR_NOK;
-	}
-	if (nunchuk_init()) {
+	}*/
+/*	if (display_init()) {
 		return	ERROR_NOK;
-	}
+	}*/
+/*	if (nunchuk_init()) {
+		return	ERROR_NOK;
+	}*/
+/*	if (tim_tim3_init(REFRESH_FREQ)) {
+		return	ERROR_NOK;
+	}*/
 
 	return	ERROR_OK;
 }
@@ -125,18 +123,21 @@ static	int	test		(void)
 	if (led_test()) {
 		return	ERROR_NOK;
 	}
-	if (tim_test(REFRESH_FREQ)) {
+/*	can_r_test();*/
+	can_w_test();
+/*	if (servo_test_2()) {
 		return	ERROR_NOK;
-	}
-	if (display_test()) {
+	}*/
+/*	if (display_test()) {
 		return	ERROR_NOK;
-	}
-	if (servo_test()) {
+	}*/
+/*	if (nunchuk_test_2()) {
 		return	ERROR_NOK;
-	}
-	if (nunchuk_test()) {
+	}*/
+	prj_error_handle();
+/*	if (tim_test(REFRESH_FREQ)) {
 		return	ERROR_NOK;
-	}
+	}*/
 
 	return	ERROR_OK;
 }
