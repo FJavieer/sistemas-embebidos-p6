@@ -14,7 +14,8 @@ ALL	= $(PROJECT_NAME).elf $(PROJECT_NAME).hex $(PROJECT_NAME).lst size
 
 MAIN_OBJ_MODULES	= \
 			system_stm32l4xx.o stm32l4xx_it.o main.o \
-			ctrl.o actuators.o
+			ctrl.o actuators.o \
+			ctrl_tst.o actuators_tst.o
 MAIN_OBJS		= $(patsubst %,$(TMP_DIR)/%,$(MAIN_OBJ_MODULES))
 
 

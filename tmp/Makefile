@@ -23,7 +23,8 @@ DEP_DIR = $(MAIN_DIR)/dep/
 
 ALL		= \
 		system_stm32l4xx.o stm32l4xx_it.o main.o \
-		ctrl.o actuators.o
+		ctrl.o actuators.o \
+		ctrl_tst.o actuators_tst.o
 
 COMMON_INC_CMSIS	= core_cm4.h cmsis_gcc.h
 COMMON_INC_CMSIS_L4	= stm32l4xx.h
@@ -83,6 +84,9 @@ CTRL_INC_DIRS		= -I $(INC_DIR) \
 			$(COMMON_INC_DIRS)
 
 
+CTRL__DEPS		= $(SRC_DIR)/ctrl_tst.c
+
+
 ACT_INC_BASE		= can.h errors.h tim.h
 ACT_INC_DEV		= servo.h
 ACT_INC			= actuators.h
@@ -95,6 +99,9 @@ ACT_INC_DIRS		= -I $(INC_DIR) \
 			-I $(MODULES_BASE_INC_DIR) \
 			-I $(MODULES_DEV_INC_DIR) \
 			$(COMMON_INC_DIRS)
+
+
+ACT__DEPS		= $(SRC_DIR)/actuators_tst.c
 
 
 # target: dependencies
@@ -119,7 +126,15 @@ ctrl.o: $(CTRL_DEPS)
 	@echo	"	CC	$@"
 	$(Q)$(CC) $(CFLAGS) $(CTRL_INC_DIRS) -c $< -o $@
 
+ctrl_tst.o: $(CTRL__DEPS)
+	@echo	"	CC	$@"
+	$(Q)$(CC) $(CFLAGS) $(CTRL_INC_DIRS) -c $< -o $@
+
 actuators.o: $(ACT_DEPS)
+	@echo	"	CC	$@"
+	$(Q)$(CC) $(CFLAGS) $(ACT_INC_DIRS) -c $< -o $@
+
+actuators_tst.o: $(ACT__DEPS)
 	@echo	"	CC	$@"
 	$(Q)$(CC) $(CFLAGS) $(ACT_INC_DIRS) -c $< -o $@
 
