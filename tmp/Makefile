@@ -50,10 +50,10 @@ IT_INC_DIRS		= \
 			$(COMMON_INC_DIRS)
 
 
-MAIN_INC_BASE		= clk.h delay.h errors.h led.h tim.h
+MAIN_INC_BASE		= can.h clk.h delay.h errors.h led.h tim.h
 MAIN_INC_DEV		= display.h nunchuk.h servo.h
 MAIN_INC_TST		= \
-			led_test.h tim_test.h \
+			can_test.h led_test.h tim_test.h \
 			display_test.h nunchuk_test.h servo_test.h
 MAIN_INC		= ctrl.h actuators.h
 MAIN_DEPS		= $(SRC_DIR)/main.c \

@@ -188,7 +188,7 @@ stm32l4-drivers:
 
 libalx:
 	@echo	'	MAKE	libalx'
-	$(Q)$(MAKE) -C $(LIBALX_DIR)
+	$(Q)$(MAKE) base	-C $(LIBALX_DIR)
 
 stm32l4-modules:
 	@echo	'	MAKE	modules'
