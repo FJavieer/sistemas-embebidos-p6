@@ -1,6 +1,6 @@
 /******************************************************************************
- *	main.c								      *
- *	2018/dec/15							      *
+ *	ctrl.c								      *
+ *	2018/dec/26							      *
  ******************************************************************************/
 
 
@@ -9,7 +9,8 @@
  ******************************************************************************/
 /* Standard C ----------------------------------------------------------------*/
 	#include <stdbool.h>
-	#include <stdnoreturn.h>
+	#include <stddef.h>
+	#include <stdint.h>
 
 /* Drivers -------------------------------------------------------------------*/
 	#include "stm32l4xx_hal.h"
@@ -17,25 +18,12 @@
 /* libalx --------------------------------------------------------------------*/
 /* STM32L4 modules -----------------------------------------------------------*/
 	#include "can.h"
-	#include "clk.h"
-	#include "delay.h"
-	#include "display.h"
 	#include "errors.h"
-	#include "led.h"
 	#include "nunchuk.h"
-	#include "servo.h"
 	#include "tim.h"
-
-	#include "can_test.h"
-	#include "display_test.h"
-	#include "led_test.h"
-	#include "nunchuk_test.h"
-	#include "servo_test.h"
-	#include "tim_test.h"
 
 /* project -------------------------------------------------------------------*/
 	#include "ctrl.h"
-	#include "actuators.h"
 
 
 /******************************************************************************
@@ -44,100 +32,148 @@
 
 
 /******************************************************************************
+ ******* structs **************************************************************
+ ******************************************************************************/
+
+
+/******************************************************************************
  ******* variables ************************************************************
  ******************************************************************************/
 /* Global --------------------------------------------------------------------*/
 /* Static --------------------------------------------------------------------*/
+static	float	pitch;
+static	float	roll;
+static	float	yaw;
 
 
 /******************************************************************************
  ******* static functions (prototypes) ****************************************
  ******************************************************************************/
-static	int	test_init	(void);
-static	int	test		(void);
+static	int	modules_init		(void);
+static	int	proc_init		(void);
+static	int	proc_ctrl_read		(void *data);
+static	int	proc_ctrl_report	(void *data);
 
 
 /******************************************************************************
  ******* main *****************************************************************
  ******************************************************************************/
-noreturn int	main	(void)
+int	proc_ctrl_init	(void)
 {
-	HAL_Init();
-	sysclk_config();
-	prj_error	= 0;
-
-	(void)&test_init;
-	if (test_init()) {
-/*	if (proc_actuators_init()) {*/
-/*	if (proc_ctrl_init()) {*/
-		while (true) {
-			__NOP();
-		}
+	if (modules_init()) {
+		return	ERROR_NOK;
 	}
 
-	(void)&test;
-	if (test()) {
-/*	if (proc_actuators()) {*/
-/*	if (proc_ctrl()) {*/
-		while (true) {
-			__NOP();
-		}
+	if (proc_init()) {
+		return	ERROR_NOK;
 	}
 
+	return	ERROR_OK;
+}
+
+int	proc_ctrl	(void)
+{
 	while (true) {
-		__NOP();
+		__WFE();
+		if (tim_tim3_interrupt) {
+			if (tim_callback_exe()) {
+				prj_error_handle();
+				return	ERROR_NOK;
+			}
+			tim_tim3_interrupt	= false;
+		}
 	}
+
+	return	ERROR_OK;
 }
 
 
 /******************************************************************************
  ******* static functions (definitions) ***************************************
  ******************************************************************************/
-static	int	test_init	(void)
+static	int	modules_init		(void)
 {
-	led_init();
-	if (delay_us_init()) {
+	if (tim_tim3_init(REFRESH_FREQ)) {
 		return	ERROR_NOK;
 	}
 	if (can_init()) {
 		return	ERROR_NOK;
 	}
-/*	if (servo_init()) {
+	if (nunchuk_init()) {
 		return	ERROR_NOK;
-	}*/
-/*	if (display_init()) {
-		return	ERROR_NOK;
-	}*/
-/*	if (nunchuk_init()) {
-		return	ERROR_NOK;
-	}*/
-/*	if (tim_tim3_init(REFRESH_FREQ)) {
-		return	ERROR_NOK;
-	}*/
+	}
 
 	return	ERROR_OK;
 }
 
-static	int	test		(void)
+static	int	proc_init		(void)
 {
-	if (led_test()) {
+	if (tim_callback_push(&proc_ctrl_read, NULL)) {
 		return	ERROR_NOK;
 	}
-/*	can_r_test();*/
-	can_w_test();
-/*	if (servo_test_2()) {
+	if (tim_callback_push(&proc_ctrl_report, NULL)) {
 		return	ERROR_NOK;
-	}*/
-/*	if (display_test()) {
+	}
+
+	return	ERROR_OK;
+}
+
+static	int	proc_ctrl_read		(void *data)
+{
+	Nunchuk_Data_s	nunchuk;
+
+	(void)data;
+
+	if (nunchuk_read(&nunchuk)) {
 		return	ERROR_NOK;
-	}*/
-/*	if (nunchuk_test_2()) {
+	}
+
+	/* FIXME */
+	pitch	= *((int8_t *)&(nunchuk.acc.x8));
+	roll	= *((int8_t *)&(nunchuk.acc.y8));
+	yaw	= *((int8_t *)&(nunchuk.acc.z8));
+
+	return	ERROR_OK;
+}
+
+static	int	proc_ctrl_report	(void *data)
+{
+	int8_t	plane_pos [CAN_DATA_LEN];
+	int	i;
+
+	(void)data;
+
+	if (pitch > INT8_MAX) {
+		plane_pos[0]	= INT8_MAX;
+	} else if (pitch < INT8_MIN) {
+		plane_pos[0]	= INT8_MIN;
+	} else {
+		plane_pos[0]	= (int8_t)pitch;
+	}
+
+	if (roll > INT8_MAX) {
+		plane_pos[1]	= INT8_MAX;
+	} else if (roll < INT8_MIN) {
+		plane_pos[1]	= INT8_MIN;
+	} else {
+		plane_pos[1]	= (int8_t)roll;
+	}
+
+	if (yaw > INT8_MAX) {
+		plane_pos[2]	= INT8_MAX;
+	} else if (yaw < INT8_MIN) {
+		plane_pos[2]	= INT8_MIN;
+	} else {
+		plane_pos[2]	= (int8_t)yaw;
+	}
+
+	for (i = 3; i < CAN_DATA_LEN; i++) {
+		plane_pos[i]	= 0;
+	}
+
+	if (can_msg_write((uint8_t *)plane_pos)) {
 		return	ERROR_NOK;
-	}*/
-	prj_error_handle();
-/*	if (tim_test(REFRESH_FREQ)) {
-		return	ERROR_NOK;
-	}*/
+	}
 
 	return	ERROR_OK;
 }

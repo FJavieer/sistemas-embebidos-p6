@@ -83,11 +83,9 @@ export	PROGRAMVERSION
 # ==============================================================================
 
 # all the files will be generated with this name (main.elf, main.bin, main.hex, etc)
-PROJECT_NAME = proyect-6
-TARGET = $(PROJECT_NAME).elf
+PROJECT_NAME = main
 
-# list of source files
-SRCS = main.c system_stm32l4xx.c stm32l4xx_it.c
+export	PROJECT_NAME
 
 # ==============================================================================
 
@@ -145,30 +143,17 @@ CFLAGS_W	= -Wall
 CFLAGS_W       += -Wextra
 CFLAGS_W       += -Wstrict-prototypes
 CFLAGS_W       += -Werror
-CFLAGS_W       += -Wno-format-truncation
-CFLAGS_W       += -Wno-format-zero-length
+#CFLAGS_W       += -Wno-format-truncation
+#CFLAGS_W       += -Wno-format-zero-length
 
 CFLAGS_F	= -ffreestanding
+CFLAGS_F       += -flto
 CFLAGS_F       += -fsingle-precision-constant
 CFLAGS_F       += -ffunction-sections
 CFLAGS_F       += -fdata-sections
 
+# defining used MCU (instead of in file stm32f00x.h): -DSTM32F051x8//
 CFLAGS_D	= -D USE_HAL_DRIVER	# to include file stm32l4xx_hal.h
-
-C_INCLUDES	= -I $(DRIVERS_DIR)/
-C_INCLUDES     += -I $(DRIVERS_DIR)/CMSIS/Include/
-C_INCLUDES     += -I $(DRIVERS_DIR)/CMSIS/ST/STM32L4xx/Include/
-C_INCLUDES     += -I $(DRIVERS_DIR)/STM32L4xx_HAL_Driver/Inc/
-C_INCLUDES     += -I $(LIBALX_DIR)/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/can/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/clk/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/delay/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/display/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/errors/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/led/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/pwm/inc/
-C_INCLUDES     += -I $(MODULES_DIR)/servo/inc/
-C_INCLUDES     += -I $(INC_DIR)/
 
 CFLAGS		= $(CFLAGS_STD)
 CFLAGS	       += $(CFLAGS_OPT)
@@ -178,104 +163,44 @@ CFLAGS	       += $(CFLAGS_F)
 CFLAGS	       += $(CFLAGS_D)
 CFLAGS	       += $(C_INCLUDES)
 
-# defining used MCU (instead of in file stm32f00x.h): -DSTM32F051x8//
-CFLAGS += -DUSE_HAL_DRIVER # to include file stm32l4xx_hal.h
-
 export	CFLAGS
 
 
 ################################################################################
 # LDFLAGS
 # Settings of linker
-LDFLAGS =  -mcpu=cortex-m4 -mthumb
-LDFLAGS += -Wl,--gc-sections -Wl,-Map=$(BIN_DIR)/$(PROJECT_NAME).map,--cref,--no-warn-mismatch
+LDFLAGS		=  -mcpu=cortex-m4 -mthumb
+LDFLAGS        += -Wl,--gc-sections -Wl,-Map=$(PROJECT_NAME).map,--cref,--no-warn-mismatch
+
+export	LDFLAGS
 
 
 ################################################################################
-vpath %.a $(DRIVERS_DIR)
 
 
-# startup file for MCU
-STARTUP = $(SRC_DIR)/startup_stm32l476xx.s
+.PHONY: all stm32l4-drivers libalx stm32l4-modules objects target flash erase reset clean mrproper
 
-# generating of object files and dependencies
-OBJS = $(addprefix $(TMP_DIR)/,$(SRCS:.c=.o))
-DEPS = $(addprefix $(DEP_DIR)/,$(SRCS:.c=.d))
-
-
-.PHONY: all stm32l4-drivers libalx stm32l4-modules flash erase reset clean entireclean display
-
-all: dirs stm32l4-drivers libalx stm32l4-modules \
-		$(BIN_DIR)/$(TARGET) $(BIN_DIR)/$(PROJECT_NAME).hex \
-		$(BIN_DIR)/$(PROJECT_NAME).lst size
+all: stm32l4-drivers libalx stm32l4-modules objects target
 
 stm32l4-drivers:
 	@echo	'	MAKE	drivers'
-	$(Q)make -C $(DRIVERS_DIR)
+	$(Q)$(MAKE) -C $(DRIVERS_DIR)
 
 libalx:
 	@echo	'	MAKE	libalx'
-	$(Q)make -C $(LIBALX_DIR)
+	$(Q)$(MAKE) base	-C $(LIBALX_DIR)
 
 stm32l4-modules:
 	@echo	'	MAKE	modules'
-	$(Q)make -C $(MODULES_DIR)
+	$(Q)$(MAKE) -C $(MODULES_DIR)
 
-dirs:
-	@echo	'	MKDIR	$(DEP_DIR)'
-	$(Q)mkdir -p $(DEP_DIR)
-	@echo	'	MKDIR	$(TMP_DIR)'
-	$(Q)mkdir -p $(TMP_DIR)
-	@echo	'	MKDIR	$(BIN_DIR)'
-	$(Q)mkdir -p $(BIN_DIR)
-	@echo	''
+objects:
+	@echo	"	MAKE	objects"
+	$(Q)$(MAKE) -C $(TMP_DIR)
 
-display:
-	@echo 'SRCS = $(SRCS)'
-	@echo 'OBJS = $(OBJS)'
-
-
-## Compile:
-# independent rule for every source file
-$(TMP_DIR)/main.o : $(SRC_DIR)/main.c
-	@echo	'	CC	$@'
-	$(Q)$(CC) $(CFLAGS) -MMD -MF $(DEP_DIR)/$(*F).d -c $(SRC_DIR)/main.c -o $@
-
-$(TMP_DIR)/system_stm32l4xx.o : $(SRC_DIR)/system_stm32l4xx.c
-	@echo	'	CC	$@'
-	$(Q)$(CC) $(CFLAGS) -MMD -MF $(DEP_DIR)/$(*F).d -c $(SRC_DIR)/system_stm32l4xx.c -o $@
-
-$(TMP_DIR)/stm32l4xx_it.o : $(SRC_DIR)/stm32l4xx_it.c
-	@echo	'	CC	$@'
-	$(Q)$(CC) $(CFLAGS) -MMD -MF $(DEP_DIR)/$(*F).d -c $(SRC_DIR)/stm32l4xx_it.c -o $@
-
-
-## Link:
-$(BIN_DIR)/$(TARGET): $(OBJS)
-	@echo	'	CC	$@'
-	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(STARTUP) \
-			-L $(MODULES_DIR)/lib/ -l stm32l4-modules \
-			-L $(DRIVERS_DIR)/lib/ -l stm32l4 \
-			-L $(LIBALX_DIR)/lib/ -l alx-base \
-			-TSTM32L476RG.ld
-
-## Post-build steps:
-$(BIN_DIR)/$(PROJECT_NAME).hex: $(BIN_DIR)/$(TARGET)
-	@echo	'	OBJCOPY	$@'
-	$(Q)$(OBJCOPY) -O ihex $(BIN_DIR)/$(TARGET) $@
-
-$(BIN_DIR)/$(PROJECT_NAME).bin: $(BINDIR)/$(TARGET)
-	@echo	'	OBJCOPY	$@'
-	$(Q)$(OBJCOPY) -O binary $(BINDIR)/$(TARGET) $@
-
-$(BIN_DIR)/$(PROJECT_NAME).lst: $(BIN_DIR)/$(TARGET)
-	@echo	'	OBJDUMP	$@'
-	$(Q)$(OBJDUMP) -St $(BIN_DIR)/$(TARGET) > $@
-
-size: $(BIN_DIR)/$(TARGET)
-	@echo 'size $<'
-	$(Q)$(SIZE) -B $(BIN_DIR)/$(TARGET)
-	@echo
+target:
+	@echo	"	MAKE	target"
+	$(Q)$(MAKE) -C $(BIN_DIR)
 
 
 flash:
@@ -290,17 +215,18 @@ reset:
 	openocd -f board/stm32l4nucleo.cfg -c "init" -c "reset" -c "shutdown"
 
 clean:
-	rm -f $(TMP_DIR)/*.o $(DEP_DIR)/*.d
-	rm -f $(BIN_DIR)/$(PROJECT_NAME).elf $(BIN_DIR)/$(PROJECT_NAME).hex $(BIN_DIR)/$(PROJECT_NAME).bin $(BIN_DIR)/$(PROJECT_NAME).map $(BIN_DIR)/$(PROJECT_NAME).lst
-	make clean -C $(DRIVERS_DIR)
+	@echo	'	CLEAN	bin'
+	$(Q)$(MAKE) clean -C $(BIN_DIR)
+	@echo	'	CLEAN	tmp'
+	$(Q)$(MAKE) clean -C $(TMP_DIR)
 
 mrproper: clean
 	@echo	'	CLEAN	modules'
-	$(Q)make -C $(MODULES_DIR) clean
+	$(Q)$(MAKE) clean -C $(MODULES_DIR)
 	@echo	'	CLEAN	libalx'
-	$(Q)make -C $(LIBALX_DIR) clean
+	$(Q)$(MAKE) clean -C $(LIBALX_DIR)
 	@echo	'	CLEAN	drivers'
-	$(Q)make -C $(DRIVERS_DIR) clean
+	$(Q)$(MAKE) clean -C $(DRIVERS_DIR)
 
 
 
