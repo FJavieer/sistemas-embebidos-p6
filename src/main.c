@@ -67,18 +67,26 @@ noreturn int	main	(void)
 	prj_error	= 0;
 
 	(void)&test_init;
+#if 0
 	if (test_init()) {
-/*	if (proc_actuators_init()) {*/
-/*	if (proc_ctrl_init()) {*/
+#elif 0
+	if (proc_actuators_init()) {
+#elif 1
+	if (proc_ctrl_init()) {
+#endif
 		while (true) {
 			__NOP();
 		}
 	}
 
 	(void)&test;
+#if 0
 	if (test()) {
-/*	if (proc_actuators()) {*/
-/*	if (proc_ctrl()) {*/
+#elif 0
+	if (proc_actuators_2()) {
+#elif 1
+	if (proc_ctrl_2()) {
+#endif
 		while (true) {
 			__NOP();
 		}
@@ -95,49 +103,79 @@ noreturn int	main	(void)
  ******************************************************************************/
 static	int	test_init	(void)
 {
+#if 1
 	led_init();
+#endif
+#if 1
 	if (delay_us_init()) {
 		return	ERROR_NOK;
 	}
+#endif
+#if 0
 	if (can_init()) {
 		return	ERROR_NOK;
 	}
-/*	if (servo_init()) {
+#endif
+#if 0
+	if (servo_init()) {
 		return	ERROR_NOK;
-	}*/
-/*	if (display_init()) {
+	}
+#endif
+#if 1
+	if (display_init()) {
 		return	ERROR_NOK;
-	}*/
-/*	if (nunchuk_init()) {
+	}
+#endif
+#if 0
+	if (nunchuk_init()) {
 		return	ERROR_NOK;
-	}*/
-/*	if (tim_tim3_init(REFRESH_FREQ)) {
+	}
+#endif
+#if 0
+	if (tim_tim3_init(1)) {
 		return	ERROR_NOK;
-	}*/
+	}
+#endif
 
 	return	ERROR_OK;
 }
 
 static	int	test		(void)
 {
+#if 0
 	if (led_test()) {
 		return	ERROR_NOK;
 	}
-/*	can_r_test();*/
+#endif
+#if 0
+	can_r_test();
+#endif
+#if 0
 	can_w_test();
-/*	if (servo_test_2()) {
+#endif
+#if 0
+	if (servo_test_2()) {
 		return	ERROR_NOK;
-	}*/
-/*	if (display_test()) {
+	}
+#endif
+#if 1
+	if (display_test()) {
 		return	ERROR_NOK;
-	}*/
-/*	if (nunchuk_test_2()) {
+	}
+#endif
+#if 0
+	if (nunchuk_test_2()) {
 		return	ERROR_NOK;
-	}*/
+	}
+#endif
+#if 0
+	if (tim_test(1)) {
+		return	ERROR_NOK;
+	}
+#endif
+#if 0
 	prj_error_handle();
-/*	if (tim_test(REFRESH_FREQ)) {
-		return	ERROR_NOK;
-	}*/
+#endif
 
 	return	ERROR_OK;
 }

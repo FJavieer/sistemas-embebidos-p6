@@ -69,29 +69,35 @@ MAIN_INC_DIRS		= -I $(INC_DIR) \
 			$(COMMON_INC_DIRS)
 
 
-CTRL_INC_BASE		= can.h errors.h tim.h
+CTRL_INC_LIBALX		= alx_math.h
+CTRL_INC_BASE		= can.h delay.h errors.h led.h tim.h
 CTRL_INC_DEV		= nunchuk.h
 CTRL_INC		= ctrl.h
 CTRL_DEPS		= $(SRC_DIR)/ctrl.c \
 			$(COMMON_DEPS) \
+			$(patsubst %,$(LIBALX_INC_DIR)/%,$(CTRL_INC_LIBALX)) \
 			$(patsubst %,$(MODULES_BASE_INC_DIR)/%,$(CTRL_INC_BASE)) \
 			$(patsubst %,$(MODULES_DEV_INC_DIR)/%,$(CTRL_INC_DEV)) \
 			$(patsubst %,$(INC_DIR)/%,$(CTRL_INC))
 CTRL_INC_DIRS		= -I $(INC_DIR) \
+			-I $(LIBALX_INC_DIR) \
 			-I $(MODULES_BASE_INC_DIR) \
 			-I $(MODULES_DEV_INC_DIR) \
 			$(COMMON_INC_DIRS)
 
 
-ACT_INC_BASE		= can.h errors.h tim.h
+ACT_INC_LIBALX		= alx_math.h
+ACT_INC_BASE		= can.h delay.h errors.h led.h tim.h
 ACT_INC_DEV		= servo.h
 ACT_INC			= actuators.h
 ACT_DEPS		= $(SRC_DIR)/actuators.c \
 			$(COMMON_DEPS) \
+			$(patsubst %,$(LIBALX_INC_DIR)/%,$(ACT_INC_LIBALX)) \
 			$(patsubst %,$(MODULES_BASE_INC_DIR)/%,$(ACT_INC_BASE)) \
 			$(patsubst %,$(MODULES_DEV_INC_DIR)/%,$(ACT_INC_DEV)) \
 			$(patsubst %,$(INC_DIR)/%,$(ACT_INC))
 ACT_INC_DIRS		= -I $(INC_DIR) \
+			-I $(LIBALX_INC_DIR) \
 			-I $(MODULES_BASE_INC_DIR) \
 			-I $(MODULES_DEV_INC_DIR) \
 			$(COMMON_INC_DIRS)
