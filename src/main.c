@@ -53,8 +53,9 @@
 /******************************************************************************
  ******* static functions (prototypes) ****************************************
  ******************************************************************************/
-static	int	test_init	(void);
-static	int	test		(void);
+static	int		test_init	(void);
+static	int		test		(void);
+static	noreturn void	stuck_forever	(bool led);
 
 
 /******************************************************************************
@@ -69,44 +70,52 @@ noreturn int	main	(void)
 	(void)&test_init;
 #if 0
 	if (test_init()) {
-#elif 0
-	if (proc_actuators_init()) {
 #elif 1
+	if (proc_actuators_init()) {
+#elif 0
 	if (proc_ctrl_init()) {
 #endif
-		while (true) {
-			__NOP();
-		}
+		stuck_forever(true);
 	}
 
 	(void)&test;
 #if 0
 	if (test()) {
-#elif 0
-	if (proc_actuators_2()) {
 #elif 1
+	if (proc_actuators_2()) {
+#elif 0
 	if (proc_ctrl_2()) {
 #endif
-		while (true) {
-			__NOP();
-		}
+		stuck_forever(true);
 	}
 
-	while (true) {
-		__NOP();
-	}
+	stuck_forever(true);
 }
 
 
 /******************************************************************************
  ******* static functions (definitions) ***************************************
  ******************************************************************************/
-static	int	test_init	(void)
+static	noreturn void	stuck_forever	(bool led)
 {
-#if 1
+	if (led) {
+		led_set();
+	} else {
+		led_reset();
+	}
+
+	while (true) {
+		__WFI();
+		__NOP();
+	}
+}
+
+static	int		test_init	(void)
+{
+#if 0
 	led_init();
 #endif
-#if 1
+#if 0
 	if (delay_us_init()) {
 		return	ERROR_NOK;
 	}
@@ -121,7 +130,7 @@ static	int	test_init	(void)
 		return	ERROR_NOK;
 	}
 #endif
-#if 1
+#if 0
 	if (display_init()) {
 		return	ERROR_NOK;
 	}
@@ -140,7 +149,7 @@ static	int	test_init	(void)
 	return	ERROR_OK;
 }
 
-static	int	test		(void)
+static	int		test		(void)
 {
 #if 0
 	if (led_test()) {
@@ -158,7 +167,7 @@ static	int	test		(void)
 		return	ERROR_NOK;
 	}
 #endif
-#if 1
+#if 0
 	if (display_test()) {
 		return	ERROR_NOK;
 	}

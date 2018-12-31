@@ -134,6 +134,7 @@ CFLAGS_STD	= -std=c11
 CFLAGS_OPT	= -Os
 
 CFLAGS_MCU	= -mlittle-endian
+CFLAGS_MCU     += -march=armv7e-m
 CFLAGS_MCU     += -mcpu=cortex-m4
 CFLAGS_MCU     += -mthumb
 CFLAGS_MCU     += -mfpu=fpv4-sp-d16
@@ -143,8 +144,6 @@ CFLAGS_W	= -Wall
 CFLAGS_W       += -Wextra
 CFLAGS_W       += -Wstrict-prototypes
 CFLAGS_W       += -Werror
-#CFLAGS_W       += -Wno-format-truncation
-#CFLAGS_W       += -Wno-format-zero-length
 
 CFLAGS_F	= -ffreestanding
 CFLAGS_F       += -flto
