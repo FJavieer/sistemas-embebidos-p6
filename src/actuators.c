@@ -54,7 +54,9 @@ static	float	yaw;
  ******* static functions (prototypes) ****************************************
  ******************************************************************************/
 static	int	modules_init		(void);
-/*static	int	proc_init		(void);*/
+#if 0
+static	int	proc_init		(void);
+#endif
 static	int	proc_ref_read		(void *data);
 static	int	proc_actuators_set	(void *data);
 
