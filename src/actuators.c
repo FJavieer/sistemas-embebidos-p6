@@ -70,9 +70,11 @@ int	proc_actuators_init	(void)
 		return	ERROR_NOK;
 	}
 
-/*	if (proc_init()) {
+#if 0
+	if (proc_init()) {
 		return	ERROR_NOK;
-	}*/
+	}
+#endif
 
 
 	servo_position_set(SERVO_S1, 0);
