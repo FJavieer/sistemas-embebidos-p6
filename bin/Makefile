@@ -1,5 +1,7 @@
-# -*- MakeFile -*-
+#!/usr/bin/make -f
 
+
+################################################################################
 # directories
 
 LIBALX_LIB_DIR	= $(LIBALX_DIR)/lib/
@@ -9,6 +11,7 @@ MODULES_LIB_DIR	= $(MODULES_DIR)/lib/
 SRC_DIR		= $(MAIN_DIR)/src/
 TMP_DIR		= $(MAIN_DIR)/tmp/
 
+################################################################################
 # dependencies
 ALL	= $(PROJECT_NAME).elf $(PROJECT_NAME).hex $(PROJECT_NAME).lst size
 
