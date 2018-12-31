@@ -53,7 +53,6 @@
 /******************************************************************************
  ******* static functions (prototypes) ****************************************
  ******************************************************************************/
-static	int		test_init	(void);
 static	int		test		(void);
 static	noreturn void	stuck_forever	(bool led);
 
@@ -67,27 +66,34 @@ noreturn int	main	(void)
 	sysclk_config();
 	prj_error	= 0;
 
-	(void)&test_init;
-#if 0
-	if (test_init()) {
-#elif 1
-	if (proc_actuators_init()) {
-#elif 0
-	if (proc_ctrl_init()) {
-#endif
-		stuck_forever(true);
-	}
-
-	(void)&test;
-#if 0
+#if 1
 	if (test()) {
-#elif 1
-	if (proc_actuators_2()) {
-#elif 0
-	if (proc_ctrl_2()) {
-#endif
 		stuck_forever(true);
 	}
+#else
+	(void)&test;
+
+ #if 0
+	if (proc_actuators_init()) {
+		stuck_forever(true);
+	}
+ #elif 1
+	if (proc_ctrl_init()) {
+		stuck_forever(true);
+	}
+ #endif
+
+ #if 0
+	if (proc_actuators_2()) {
+		stuck_forever(true);
+	}
+ #elif 1
+	if (proc_ctrl_2()) {
+		stuck_forever(true);
+	}
+ #endif
+
+#endif
 
 	stuck_forever(true);
 }
@@ -108,45 +114,6 @@ static	noreturn void	stuck_forever	(bool led)
 		__WFI();
 		__NOP();
 	}
-}
-
-static	int		test_init	(void)
-{
-#if 0
-	led_init();
-#endif
-#if 0
-	if (delay_us_init()) {
-		return	ERROR_NOK;
-	}
-#endif
-#if 0
-	if (can_init()) {
-		return	ERROR_NOK;
-	}
-#endif
-#if 0
-	if (servo_init()) {
-		return	ERROR_NOK;
-	}
-#endif
-#if 0
-	if (display_init()) {
-		return	ERROR_NOK;
-	}
-#endif
-#if 0
-	if (nunchuk_init()) {
-		return	ERROR_NOK;
-	}
-#endif
-#if 0
-	if (tim_tim3_init(1)) {
-		return	ERROR_NOK;
-	}
-#endif
-
-	return	ERROR_OK;
 }
 
 static	int		test		(void)
@@ -177,8 +144,8 @@ static	int		test		(void)
 		return	ERROR_NOK;
 	}
 #endif
-#if 0
-	if (tim_test(1)) {
+#if 1
+	if (tim_test()) {
 		return	ERROR_NOK;
 	}
 #endif
