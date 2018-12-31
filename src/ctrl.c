@@ -77,6 +77,8 @@ int	proc_ctrl_init	(void)
 	}
 #endif
 
+	level	= true;
+
 	return	ERROR_OK;
 }
 
@@ -98,10 +100,10 @@ int	proc_ctrl_1		(void)
 
 int	proc_ctrl_2		(void)
 {
-	delay_us(150000u);
+	delay_us(1000u);
 
 	while (true) {
-		delay_us(100000u);
+		delay_us(20000u);
 
 		if (proc_ctrl_read(NULL)) {
 			prj_error_handle();

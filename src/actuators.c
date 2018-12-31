@@ -76,13 +76,6 @@ int	proc_actuators_init	(void)
 	}
 #endif
 
-
-	servo_position_set(SERVO_S1, 0);
-	servo_position_set(SERVO_S2, -45);
-	servo_position_set(SERVO_S3, 90);
-	servo_position_set(SERVO_S4, -90);
-	delay_us(1000000u);
-
 	return	ERROR_OK;
 }
 
@@ -104,10 +97,10 @@ int	proc_actuators_1	(void)
 
 int	proc_actuators_2	(void)
 {
-	delay_us(200000u);
+	delay_us(1000u);
 
 	while (true) {
-		delay_us(100000u);
+		delay_us(20000u);
 
 		if (!proc_ref_read(NULL)) {
 			if (proc_actuators_set(NULL)) {
