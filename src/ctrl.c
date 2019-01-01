@@ -1,7 +1,22 @@
 /******************************************************************************
- *	ctrl.c								      *
- *	2018/dec/26							      *
+ *	Copyright (C) 2018	Colomar Andrés, Alejandro		      *
+ *	Copyright (C) 2018	García Pedroche, Francisco Javier	      *
+ *	SPDX-License-Identifier:	GPL-2.0-only			      *
  ******************************************************************************/
+
+/**
+ *	@file		ctrl.c
+ *	@author		Colomar Andrés, Alejandro
+ *	@author		García Pedroche, Francisco Javier
+ *	@copyright	GPL-2.0-only
+ *	@date		2018/dec/26
+ *	@brief		Control
+ *		Read values from the nunchuk, and set from them
+ *			- pitch
+ *			- roll
+ *			- yaw
+ *		Send those 3 values through CAN
+ */
 
 
 /******************************************************************************

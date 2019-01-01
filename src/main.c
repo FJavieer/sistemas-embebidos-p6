@@ -1,7 +1,19 @@
 /******************************************************************************
- *	main.c								      *
- *	2018/dec/15							      *
+ *	Copyright (C) 2018	Colomar Andrés, Alejandro		      *
+ *	Copyright (C) 2018	García Pedroche, Francisco Javier	      *
+ *	Copyright (C) 2018	Junquera Carrero, Santiago		      *
+ *	SPDX-License-Identifier:	GPL-2.0-only			      *
  ******************************************************************************/
+
+/**
+ *	@file		main.c
+ *	@author		Colomar Andrés, Alejandro
+ *	@author		García Pedroche, Francisco Javier
+ *	@author		Junquera Carrero, Santiago
+ *	@copyright	GPL-2.0-only
+ *	@date		2018/dec/15
+ *	@brief		Main
+ */
 
 
 /******************************************************************************

@@ -1,7 +1,18 @@
 /******************************************************************************
- *	actuators.c							      *
- *	2018/dec/26							      *
+ *	Copyright (C) 2018	Colomar Andrés, Alejandro		      *
+ *	Copyright (C) 2018	García Pedroche, Francisco Javier	      *
+ *	SPDX-License-Identifier:	GPL-2.0-only			      *
  ******************************************************************************/
+
+/**
+ *	@file		actuators.c
+ *	@author		Colomar Andrés, Alejandro
+ *	@author		García Pedroche, Francisco Javier
+ *	@copyright	GPL-2.0-only
+ *	@date		2018/dec/26
+ *	@brief		Actuators
+ *		Set the actuators of the plane to the position received by CAN
+ */
 
 
 /******************************************************************************
