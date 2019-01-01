@@ -51,6 +51,11 @@
 
 
 /******************************************************************************
+ ******* enums ****************************************************************
+ ******************************************************************************/
+
+
+/******************************************************************************
  ******* structs **************************************************************
  ******************************************************************************/
 
@@ -78,8 +83,13 @@ static	int	proc_ctrl_report	(void *data);
 
 
 /******************************************************************************
- ******* main *****************************************************************
+ ******* global functions *****************************************************
  ******************************************************************************/
+	/**
+	 * @brief	Initialize controller process
+	 * @return	Error
+	 * @note	Sets global variable 'prj_error'
+	 */
 int	proc_ctrl_init	(void)
 {
 	if (modules_init()) {
@@ -97,6 +107,11 @@ int	proc_ctrl_init	(void)
 	return	ERROR_OK;
 }
 
+	/**
+	 * @brief	Run controller process (based on timer interrupts)
+	 * @return	Error
+	 * @note	Sets global variable 'prj_error'
+	 */
 int	proc_ctrl_1		(void)
 {
 	while (true) {
@@ -113,6 +128,11 @@ int	proc_ctrl_1		(void)
 	return	ERROR_OK;
 }
 
+	/**
+	 * @brief	Run controller process (based on delays)
+	 * @return	Error
+	 * @note	Sets global variable 'prj_error'
+	 */
 int	proc_ctrl_2		(void)
 {
 	delay_us(1000u);
