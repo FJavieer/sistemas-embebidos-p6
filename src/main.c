@@ -88,7 +88,7 @@ noreturn int	main	(void)
 	sysclk_config();
 	prj_error	= 0;
 
-#if 1
+#if 0
 	if (test()) {
 		stuck_forever(true);
 	}
@@ -106,11 +106,11 @@ noreturn int	main	(void)
  #endif
 
  #if 0
-	if (proc_actuators_2()) {
+	if (proc_actuators_1()) {
 		stuck_forever(true);
 	}
  #elif 1
-	if (proc_ctrl_2()) {
+	if (proc_ctrl_1()) {
 		stuck_forever(true);
 	}
  #endif

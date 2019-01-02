@@ -71,7 +71,7 @@ static	float	yaw;
  ******* static functions (prototypes) ****************************************
  ******************************************************************************/
 static	int	modules_init		(void);
-#if 0
+#if 1
 static	int	proc_init		(void);
 #endif
 static	int	proc_ref_read		(void *data);
@@ -92,7 +92,7 @@ int	proc_actuators_init	(void)
 		return	ERROR_NOK;
 	}
 
-#if 0
+#if 1
 	if (proc_init()) {
 		return	ERROR_NOK;
 	}
@@ -109,7 +109,7 @@ int	proc_actuators_init	(void)
 int	proc_actuators_1	(void)
 {
 	while (true) {
-		__WFE();
+		__WFI();
 		if (tim_tim3_interrupt) {
 			if (tim_callback_exe()) {
 				prj_error_handle();
@@ -132,7 +132,7 @@ int	proc_actuators_2	(void)
 	delay_us(1000u);
 
 	while (true) {
-		delay_us(20000u);
+		delay_us(ACT_REFRESH_PERIOD_US);
 
 		if (!proc_ref_read(NULL)) {
 			if (proc_actuators_set(NULL)) {
@@ -150,8 +150,8 @@ int	proc_actuators_2	(void)
  ******************************************************************************/
 static	int	modules_init		(void)
 {
-#if 0
-	if (tim_tim3_init(REFRESH_FREQ)) {
+#if 1
+	if (tim_tim3_init(ACT_REFRESH_PERIOD_US)) {
 		return	ERROR_NOK;
 	}
 #endif
@@ -168,7 +168,7 @@ static	int	modules_init		(void)
 	return	ERROR_OK;
 }
 
-#if 0
+#if 1
 static	int	proc_init		(void)
 {
 	if (tim_callback_push(&proc_ref_read, NULL)) {

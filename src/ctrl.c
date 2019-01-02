@@ -75,7 +75,7 @@ static	bool	level;
  ******* static functions (prototypes) ****************************************
  ******************************************************************************/
 static	int	modules_init		(void);
-#if 0
+#if 1
 static	int	proc_init		(void);
 #endif
 static	int	proc_ctrl_read		(void *data);
@@ -96,7 +96,7 @@ int	proc_ctrl_init	(void)
 		return	ERROR_NOK;
 	}
 
-#if 0
+#if 1
 	if (proc_init()) {
 		return	ERROR_NOK;
 	}
@@ -115,7 +115,7 @@ int	proc_ctrl_init	(void)
 int	proc_ctrl_1		(void)
 {
 	while (true) {
-		__WFE();
+		__WFI();
 		if (tim_tim3_interrupt) {
 			if (tim_callback_exe()) {
 				prj_error_handle();
@@ -138,7 +138,7 @@ int	proc_ctrl_2		(void)
 	delay_us(1000u);
 
 	while (true) {
-		delay_us(20000u);
+		delay_us(CTRL_REFRESH_PERIOD_US);
 
 		if (proc_ctrl_read(NULL)) {
 			prj_error_handle();
@@ -160,8 +160,8 @@ int	proc_ctrl_2		(void)
  ******************************************************************************/
 static	int	modules_init		(void)
 {
-#if 0
-	if (tim_tim3_init(REFRESH_FREQ)) {
+#if 1
+	if (tim_tim3_init(CTRL_REFRESH_PERIOD_US)) {
 		return	ERROR_NOK;
 	}
 #endif
@@ -180,7 +180,7 @@ static	int	modules_init		(void)
 	return	ERROR_OK;
 }
 
-#if 0
+#if 1
 static	int	proc_init		(void)
 {
 	if (tim_callback_push(&proc_ctrl_read, NULL)) {
