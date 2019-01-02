@@ -23,7 +23,7 @@ DEP_DIR = $(MAIN_DIR)/dep/
 
 ALL		= \
 		system_stm32l4xx.o stm32l4xx_it.o main.o \
-		ctrl.o actuators.o
+		ctrl.o actuators.o test.o
 
 COMMON_INC_CMSIS	= core_cm4.h cmsis_gcc.h
 COMMON_INC_CMSIS_L4	= stm32l4xx.h
@@ -103,6 +103,22 @@ ACT_INC_DIRS		= -I $(INC_DIR) \
 			$(COMMON_INC_DIRS)
 
 
+TST_INC_BASE		= errors.h
+TST_INC_TST		= \
+			can_test.h led_test.h tim_test.h \
+			display_test.h nunchuk_test.h servo_test.h
+TST_INC			= test.h
+TST_DEPS		= $(SRC_DIR)/test.c \
+			$(COMMON_DEPS) \
+			$(patsubst %,$(MODULES_BASE_INC_DIR)/%,$(TST_INC_BASE)) \
+			$(patsubst %,$(MODULES_TST_INC_DIR)/%,$(TST_INC_TST)) \
+			$(patsubst %,$(INC_DIR)/%,$(TST_INC))
+TST_INC_DIRS		= -I $(INC_DIR) \
+			-I $(MODULES_BASE_INC_DIR) \
+			-I $(MODULES_TST_INC_DIR) \
+			$(COMMON_INC_DIRS)
+
+
 # target: dependencies
 #	action
 
@@ -128,6 +144,10 @@ ctrl.o: $(CTRL_DEPS)
 actuators.o: $(ACT_DEPS)
 	@echo	"	CC	$@"
 	$(Q)$(CC) $(CFLAGS) $(ACT_INC_DIRS) -c $< -o $@
+
+test.o: $(TST_DEPS)
+	@echo	"	CC	$@"
+	$(Q)$(CC) $(CFLAGS) $(TST_INC_DIRS) -c $< -o $@
 
 
 clean:
