@@ -53,6 +53,9 @@
 /******************************************************************************
  ******* macros ***************************************************************
  ******************************************************************************/
+	# define	TESTING_MODULES	(false)
+	# define	PROJECT_CTRL	(false)
+	# define	PROJECT_ACT	(!PROJECT_CTRL)
 
 
 /******************************************************************************
@@ -75,6 +78,8 @@
 /******************************************************************************
  ******* static functions (prototypes) ****************************************
  ******************************************************************************/
+static	int		proc_init	(void);
+static	int		proc		(void);
 static	int		test		(void);
 static	noreturn void	stuck_forever	(bool led);
 
@@ -88,35 +93,24 @@ noreturn int	main	(void)
 	sysclk_config();
 	prj_error	= 0;
 
-#if 0
+#if	TESTING_MODULES
 	if (test()) {
-		stuck_forever(true);
+		goto err;
 	}
 #else
 	(void)&test;
 
- #if 0
-	if (proc_actuators_init()) {
-		stuck_forever(true);
+	if (proc_init()) {
+		goto err;
 	}
- #elif 1
-	if (proc_ctrl_init()) {
-		stuck_forever(true);
-	}
- #endif
 
- #if 0
-	if (proc_actuators_1()) {
-		stuck_forever(true);
+	if (proc()) {
+		goto err;
 	}
- #elif 1
-	if (proc_ctrl_1()) {
-		stuck_forever(true);
-	}
- #endif
 
 #endif
 
+err:
 	stuck_forever(true);
 }
 
@@ -124,8 +118,41 @@ noreturn int	main	(void)
 /******************************************************************************
  ******* static functions (definitions) ***************************************
  ******************************************************************************/
+static	int		proc_init	(void)
+{
+
+#if	PROJECT_ACT
+	if (proc_actuators_init()) {
+		return	ERROR_NOK;
+	}
+#elif	PROJECT_CTRL
+	if (proc_ctrl_init()) {
+		return	ERROR_NOK;
+	}
+#endif
+
+	return	ERROR_OK;
+}
+
+static	int		proc		(void)
+{
+
+#if	PROJECT_ACT
+	if (proc_actuators()) {
+		return	ERROR_NOK;
+	}
+#elif	PROJECT_CTRL
+	if (proc_ctrl()) {
+		return	ERROR_NOK;
+	}
+#endif
+
+	return	ERROR_OK;
+}
+
 static	noreturn void	stuck_forever	(bool led)
 {
+
 	if (led) {
 		led_set();
 	} else {
@@ -140,6 +167,7 @@ static	noreturn void	stuck_forever	(bool led)
 
 static	int		test		(void)
 {
+
 #if 0
 	if (led_test()) {
 		return	ERROR_NOK;

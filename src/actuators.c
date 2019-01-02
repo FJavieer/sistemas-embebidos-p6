@@ -62,6 +62,7 @@
 /* Volatile ------------------------------------------------------------------*/
 /* Global --------------------------------------------------------------------*/
 /* Static --------------------------------------------------------------------*/
+static	bool	init_pending	= true;
 static	float	pitch;
 static	float	roll;
 static	float	yaw;
@@ -71,9 +72,9 @@ static	float	yaw;
  ******* static functions (prototypes) ****************************************
  ******************************************************************************/
 static	int	modules_init		(void);
-#if 1
+static	int	modules_deinit		(void);
 static	int	proc_init		(void);
-#endif
+static	void	proc_deinit		(void);
 static	int	proc_ref_read		(void *data);
 static	int	proc_actuators_set	(void *data);
 
@@ -88,49 +89,80 @@ static	int	proc_actuators_set	(void *data);
 	 */
 int	proc_actuators_init	(void)
 {
-	if (modules_init()) {
-		return	ERROR_NOK;
+
+	if (init_pending) {
+		init_pending	= false;
+	} else {
+		return	ERROR_OK;
 	}
 
-#if 1
-	if (proc_init()) {
-		return	ERROR_NOK;
+	if (modules_init()) {
+		goto err_mod;
 	}
-#endif
+	if (proc_init()) {
+		goto err_proc;
+	}
 
 	return	ERROR_OK;
+
+
+err_proc:
+	modules_deinit();
+err_mod:
+
+	return	ERROR_NOK;
 }
 
 	/**
-	 * @brief	Run actuators process (based on timer interrupts)
+	 * @brief	Deinitialize actuators process
 	 * @return	Error
 	 * @note	Sets global variable 'prj_error'
 	 */
-int	proc_actuators_1	(void)
+int	proc_actuators_deinit	(void)
 {
+	int	status;
+
+	status	= ERROR_OK;
+
+	if (!init_pending) {
+		init_pending	= true;
+	} else {
+		return	status;
+	}
+
+	proc_deinit();
+	if (modules_deinit()) {
+		status	= ERROR_NOK;
+	}
+
+	return	status;
+}
+
+	/**
+	 * @brief	Run actuators process
+	 * @return	Error
+	 * @note	Sets global variable 'prj_error'
+	 */
+int	proc_actuators	(void)
+{
+
+	if (init_pending) {
+		if (proc_actuators_init()) {
+			return	ERROR_NOK;
+		}
+	}
+
+#if ACT_TASK_MODE_IT
 	while (true) {
 		__WFI();
 		if (tim_tim3_interrupt) {
 			if (tim_callback_exe()) {
-				prj_error_handle();
 				return	ERROR_NOK;
 			}
 			tim_tim3_interrupt	= false;
 		}
 	}
-
-	return	ERROR_OK;
-}
-
-	/**
-	 * @brief	Run actuators process (based on delays)
-	 * @return	Error
-	 * @note	Sets global variable 'prj_error'
-	 */
-int	proc_actuators_2	(void)
-{
-	delay_us(1000u);
-
+#else
 	while (true) {
 		delay_us(ACT_REFRESH_PERIOD_US);
 
@@ -140,8 +172,7 @@ int	proc_actuators_2	(void)
 			}
 		}
 	}
-
-	return	ERROR_OK;
+#endif
 }
 
 
@@ -150,37 +181,92 @@ int	proc_actuators_2	(void)
  ******************************************************************************/
 static	int	modules_init		(void)
 {
-#if 1
+
+	led_init();
+	if (delay_us_init()) {
+		goto err_delay;
+	}
+#if ACT_TASK_MODE_IT
 	if (tim_tim3_init(ACT_REFRESH_PERIOD_US)) {
-		return	ERROR_NOK;
+		goto err_tim;
 	}
 #endif
-	if (delay_us_init()) {
-		return	ERROR_NOK;
-	}
 	if (can_init()) {
-		return	ERROR_NOK;
+		goto err_can;
 	}
 	if (servo_init()) {
-		return	ERROR_NOK;
+		goto err_servo;
 	}
 
 	return	ERROR_OK;
+
+
+err_servo:
+	can_deinit();
+err_can:
+	delay_us_deinit();
+err_delay:
+	led_deinit();
+	tim_tim3_deinit();
+err_tim:
+
+	return	ERROR_NOK;
 }
 
-#if 1
+static	int	modules_deinit		(void)
+{
+	int	status;
+
+	status	= ERROR_OK;
+
+	if (servo_deinit()) {
+		status	= ERROR_NOK;
+	}
+	if (can_deinit()) {
+		status	= ERROR_NOK;
+	}
+	if (tim_tim3_deinit()) {
+		status	= ERROR_NOK;
+	}
+	if (delay_us_deinit()) {
+		status	= ERROR_NOK;
+	}
+	led_deinit();
+
+	return	status;
+}
+
 static	int	proc_init		(void)
 {
+
+#if ACT_TASK_MODE_IT
 	if (tim_callback_push(&proc_ref_read, NULL)) {
-		return	ERROR_NOK;
+		goto err_push;
 	}
 	if (tim_callback_push(&proc_actuators_set, NULL)) {
-		return	ERROR_NOK;
+		goto err_push;
 	}
 
 	return	ERROR_OK;
-}
+
+
+err_push:
+	proc_deinit();
+
+	return	ERROR_NOK;
+#else
+	return	ERROR_OK;
 #endif
+}
+
+static	void	proc_deinit		(void)
+{
+
+#if ACT_TASK_MODE_IT
+	while (tim_callback_pop()) {
+	}
+#endif
+}
 
 static	int	proc_ref_read		(void *data)
 {

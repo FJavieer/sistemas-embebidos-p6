@@ -63,8 +63,10 @@
 /******************************************************************************
  ******* variables ************************************************************
  ******************************************************************************/
+/* Volatile ------------------------------------------------------------------*/
 /* Global --------------------------------------------------------------------*/
 /* Static --------------------------------------------------------------------*/
+static	bool	init_pending	= true;
 static	float	pitch;
 static	float	roll;
 static	float	yaw;
@@ -75,9 +77,9 @@ static	bool	level;
  ******* static functions (prototypes) ****************************************
  ******************************************************************************/
 static	int	modules_init		(void);
-#if 1
+static	int	modules_deinit		(void);
 static	int	proc_init		(void);
-#endif
+static	void	proc_deinit		(void);
 static	int	proc_ctrl_read		(void *data);
 static	int	proc_ctrl_report	(void *data);
 
@@ -90,68 +92,96 @@ static	int	proc_ctrl_report	(void *data);
 	 * @return	Error
 	 * @note	Sets global variable 'prj_error'
 	 */
-int	proc_ctrl_init	(void)
+int	proc_ctrl_init		(void)
 {
-	if (modules_init()) {
-		return	ERROR_NOK;
+
+	if (init_pending) {
+		init_pending	= false;
+	} else {
+		return	ERROR_OK;
 	}
 
-#if 1
-	if (proc_init()) {
-		return	ERROR_NOK;
+	if (modules_init()) {
+		goto err_mod;
 	}
-#endif
+	if (proc_init()) {
+		goto err_proc;
+	}
 
 	level	= true;
 
 	return	ERROR_OK;
+
+
+err_proc:
+	modules_deinit();
+err_mod:
+
+	return	ERROR_NOK;
 }
 
 	/**
-	 * @brief	Run controller process (based on timer interrupts)
+	 * @brief	Deinitialize controller process
 	 * @return	Error
 	 * @note	Sets global variable 'prj_error'
 	 */
-int	proc_ctrl_1		(void)
+int	proc_ctrl_deinit	(void)
 {
+	int	status;
+
+	status	= ERROR_OK;
+
+	if (!init_pending) {
+		init_pending	= true;
+	} else {
+		return	status;
+	}
+
+	proc_deinit();
+	if (modules_deinit()) {
+		status	= ERROR_NOK;
+	}
+
+	return	status;
+}
+
+	/**
+	 * @brief	Run controller process
+	 * @return	Error
+	 * @note	Sets global variable 'prj_error'
+	 */
+int	proc_ctrl		(void)
+{
+
+	if (init_pending) {
+		if (proc_ctrl_init()) {
+			return	ERROR_NOK;
+		}
+	}
+
+#if CTRL_TASK_MODE_IT
 	while (true) {
 		__WFI();
 		if (tim_tim3_interrupt) {
 			if (tim_callback_exe()) {
-				prj_error_handle();
 				return	ERROR_NOK;
 			}
 			tim_tim3_interrupt	= false;
 		}
 	}
-
-	return	ERROR_OK;
-}
-
-	/**
-	 * @brief	Run controller process (based on delays)
-	 * @return	Error
-	 * @note	Sets global variable 'prj_error'
-	 */
-int	proc_ctrl_2		(void)
-{
-	delay_us(1000u);
-
+#else
 	while (true) {
 		delay_us(CTRL_REFRESH_PERIOD_US);
 
 		if (proc_ctrl_read(NULL)) {
-			prj_error_handle();
 			return	ERROR_NOK;
 		}
 
 		if (proc_ctrl_report(NULL)) {
-			prj_error_handle();
 			return	ERROR_NOK;
 		}
 	}
-
-	return	ERROR_OK;
+#endif
 }
 
 
@@ -160,39 +190,93 @@ int	proc_ctrl_2		(void)
  ******************************************************************************/
 static	int	modules_init		(void)
 {
-#if 1
-	if (tim_tim3_init(CTRL_REFRESH_PERIOD_US)) {
-		return	ERROR_NOK;
-	}
-#endif
+
 	led_init();
 	if (delay_us_init()) {
-		return	ERROR_NOK;
+		goto err_delay;
 	}
+#if CTRL_TASK_MODE_IT
+	if (tim_tim3_init(CTRL_REFRESH_PERIOD_US)) {
+		goto err_tim;
+	}
+#endif
 	if (can_init()) {
-		return	ERROR_NOK;
+		goto err_can;
 	}
-
 	if (nunchuk_init()) {
-		return	ERROR_NOK;
+		goto err_nunchuk;
 	}
 
 	return	ERROR_OK;
+
+
+err_nunchuk:
+	can_deinit();
+err_can:
+	delay_us_deinit();
+err_delay:
+	led_deinit();
+	tim_tim3_deinit();
+err_tim:
+
+	return	ERROR_NOK;
 }
 
-#if 1
+static	int	modules_deinit		(void)
+{
+	int	status;
+
+	status	= ERROR_OK;
+
+	if (nunchuk_deinit()) {
+		status	= ERROR_NOK;
+	}
+	if (can_deinit()) {
+		status	= ERROR_NOK;
+	}
+	if (tim_tim3_deinit()) {
+		status	= ERROR_NOK;
+	}
+	if (delay_us_deinit()) {
+		status	= ERROR_NOK;
+	}
+	led_deinit();
+
+
+	return	status;
+}
+
 static	int	proc_init		(void)
 {
+
+#if CTRL_TASK_MODE_IT
 	if (tim_callback_push(&proc_ctrl_read, NULL)) {
-		return	ERROR_NOK;
+		goto err_push;
 	}
 	if (tim_callback_push(&proc_ctrl_report, NULL)) {
-		return	ERROR_NOK;
+		goto err_push;
 	}
 
 	return	ERROR_OK;
-}
+
+
+err_push:
+	proc_deinit();
+
+	return	ERROR_NOK;
+#else
+	return	ERROR_OK;
 #endif
+}
+
+static	void	proc_deinit		(void)
+{
+
+#if CTRL_TASK_MODE_IT
+	while (tim_callback_pop()) {
+	}
+#endif
+}
 
 static	int	proc_ctrl_read		(void *data)
 {
