@@ -175,7 +175,7 @@ static	int	proc_ctrl_read		(void *data)
 	roll	= alx_scale_linear_f(tmp, 0, UINT8_MAX, -35, 35);
 
 	tmp	= nunchuk.acc.x8;
-	yaw	= alx_scale_linear_f(tmp, 0, UINT8_MAX, -10, 10);
+	yaw	= alx_scale_linear_f(tmp, 30, 150, -10, 10);
 
 	level	= nunchuk.btn_c;
 
