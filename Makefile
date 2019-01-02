@@ -1,9 +1,10 @@
 #!/usr/bin/make -f
 
-VERSION		= 0
-PATCHLEVEL	= .5
+VERSION		= 1
+PATCHLEVEL	= .0
 SUBLEVEL	= 
 EXTRAVERSION	=
+NAME		= little-bird
 
 export	VERSION
 export	PATCHLEVEL
