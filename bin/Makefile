@@ -55,7 +55,7 @@ $(PROJECT_NAME).elf: $(MAIN_OBJS) $(MAIN_LIBS)
 	@echo	"	CC	$@"
 	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) $(MAIN_OBJS) -o $@ \
 					$(SRC_DIR)/startup_stm32l476xx.s\
-					$(STATIC_LIBS) $(LIBS) -TSTM32L476RG.ld
+					$(STATIC_LIBS) $(LIBS) -Tstm32l476rg.ld
 
 $(PROJECT_NAME).hex: $(PROJECT_NAME).elf
 	@echo	"	OBJCOPY	$@"
