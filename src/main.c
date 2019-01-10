@@ -99,9 +99,6 @@ noreturn int	main	(void)
 	if (proc_init()) {
 		goto err;
 	}
-if (test()) {
-	goto err;
-}
 
 	if (proc()) {
 		goto err;
