@@ -178,9 +178,9 @@ export	LDFLAGS
 ################################################################################
 
 
-.PHONY: all stm32l4-drivers libalx stm32l4-modules objects target flash erase reset clean mrproper
+.PHONY: all stm32l4-drivers libalx stm32l4-modules main target flash erase reset clean mrproper
 
-all: stm32l4-drivers libalx stm32l4-modules objects target
+all: target
 
 stm32l4-drivers:
 	@echo	'	MAKE	drivers'
@@ -190,15 +190,15 @@ libalx:
 	@echo	'	MAKE	libalx'
 	$(Q)$(MAKE) base	-C $(LIBALX_DIR)
 
-stm32l4-modules:
+stm32l4-modules: stm32l4-drivers libalx
 	@echo	'	MAKE	modules'
 	$(Q)$(MAKE) -C $(MODULES_DIR)
 
-objects:
-	@echo	"	MAKE	objects"
+main: libalx stm32l4-modules
+	@echo	"	MAKE	main"
 	$(Q)$(MAKE) -C $(TMP_DIR)
 
-target:
+target: main
 	@echo	"	MAKE	target"
 	$(Q)$(MAKE) -C $(BIN_DIR)
 

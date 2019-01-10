@@ -22,10 +22,8 @@
 /* Standard C ----------------------------------------------------------------*/
 	#include <stdbool.h>
 	#include <stdnoreturn.h>
-
 /* Drivers -------------------------------------------------------------------*/
 	#include "stm32l4xx_hal.h"
-
 /* libalx --------------------------------------------------------------------*/
 /* STM32L4 modules -----------------------------------------------------------*/
 	#include "can.h"
@@ -44,7 +42,6 @@
 	#include "nunchuk_test.h"
 	#include "servo_test.h"
 	#include "tim_test.h"
-
 /* project -------------------------------------------------------------------*/
 	#include "ctrl.h"
 	#include "actuators.h"

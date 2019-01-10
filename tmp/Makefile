@@ -69,7 +69,7 @@ MAIN_INC_DIRS		= -I $(INC_DIR) \
 			$(COMMON_INC_DIRS)
 
 
-CTRL_INC_LIBALX		= alx_math.h
+CTRL_INC_LIBALX		= libalx/alx_math.h
 CTRL_INC_BASE		= can.h delay.h errors.h led.h tim.h
 CTRL_INC_DEV		= nunchuk.h
 CTRL_INC		= ctrl.h
@@ -86,7 +86,7 @@ CTRL_INC_DIRS		= -I $(INC_DIR) \
 			$(COMMON_INC_DIRS)
 
 
-ACT_INC_LIBALX		= alx_math.h
+ACT_INC_LIBALX		= libalx/alx_math.h
 ACT_INC_BASE		= can.h delay.h errors.h led.h tim.h
 ACT_INC_DEV		= servo.h
 ACT_INC			= actuators.h

@@ -26,13 +26,10 @@
 	#include <stdbool.h>
 	#include <stddef.h>
 	#include <stdint.h>
-
 /* Drivers -------------------------------------------------------------------*/
 	#include "stm32l4xx_hal.h"
-
 /* libalx --------------------------------------------------------------------*/
-	#include "alx_math.h"
-
+	#include "libalx/alx_math.h"
 /* STM32L4 modules -----------------------------------------------------------*/
 	#include "can.h"
 	#include "delay.h"
@@ -40,7 +37,6 @@
 	#include "led.h"
 	#include "nunchuk.h"
 	#include "tim.h"
-
 /* project -------------------------------------------------------------------*/
 	#include "ctrl.h"
 
